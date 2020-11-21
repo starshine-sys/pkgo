@@ -34,3 +34,21 @@ func (s *Session) GetSystem() (sys *System, err error) {
 	}
 	return
 }
+
+// GetSystemByID gets a system by its 5-character system ID
+func (s *Session) GetSystemByID(id string) (sys *System, err error) {
+	if !idRe.MatchString(id) {
+		return nil, &ErrInvalidID{id}
+	}
+	err = s.GetEndpoint("/s/"+id, &sys)
+	return
+}
+
+// GetSystemByUserID gets a system by a Discord snowflake (user ID)
+func (s *Session) GetSystemByUserID(id string) (sys *System, err error) {
+	if !discordIDre.MatchString(id) {
+		return nil, &ErrInvalidSnowflake{id}
+	}
+	err = s.GetEndpoint("/a/"+id, &sys)
+	return
+}

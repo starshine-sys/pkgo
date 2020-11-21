@@ -25,7 +25,7 @@ func (s *Session) GetEndpoint(endpoint string, data interface{}) error {
 		return err
 	}
 	if resp.StatusCode != 200 {
-		return &ErrStatusNot200{Code: resp.StatusCode}
+		return &ErrStatusNot200{Code: resp.StatusCode, Status: resp.Status}
 	}
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

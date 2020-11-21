@@ -7,12 +7,17 @@ type Session struct {
 	system     string
 }
 
-// NewSession returns an empty, unauthorized session
-func NewSession() *Session {
-	return &Session{Authorized: false}
+// Config is the config struct, passed to (Session).NewToken()
+type Config struct {
+	Token string
 }
 
-// NewSessionWithToken returns a session with a token
-func NewSessionWithToken(token string) *Session {
-	return &Session{Authorized: true, Token: token}
+// NewSession returns a session
+func NewSession(c *Config) *Session {
+	if c != nil {
+		if c.Token != "" {
+			return &Session{Authorized: true, Token: c.Token}
+		}
+	}
+	return &Session{Authorized: false}
 }

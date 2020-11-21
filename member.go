@@ -33,6 +33,14 @@ const (
 	BirthdayMonthNameRev = "2 January"
 )
 
+// DisplayedName returns the member's displayed name--either DisplayName if one is set, otherwise Name
+func (m *Member) DisplayedName() string {
+	if m.DisplayName != "" {
+		return m.DisplayName
+	}
+	return m.Name
+}
+
 // BirthdayString gives a member's birthday according to a format string
 func (m *Member) BirthdayString(format string) string {
 	if m.Birthday == "" {

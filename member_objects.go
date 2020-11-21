@@ -1,16 +1,9 @@
 package pkgo
 
 import (
-	"regexp"
 	"strconv"
 	"strings"
 )
-
-var colorRe *regexp.Regexp
-
-func init() {
-	colorRe = regexp.MustCompile("(i)[\\dabcdef]{6}")
-}
 
 // Color holds the color for a member
 type Color string
