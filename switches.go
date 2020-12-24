@@ -1,26 +1,26 @@
 package pkgo
 
 import (
-	"fmt"
+	"encoding/json"
 	"time"
 )
 
 // Switch holds the info for a simple switch, as queried from /s/id/switches
 type Switch struct {
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time `json:"timestamp,omitempty"`
 	Members   []string  `json:"members"`
 }
 
 // Front holds the info for a full switch, as queried from /s/id/fronters
 type Front struct {
-	Timestamp time.Time `json:"timestamp"`
+	Timestamp time.Time `json:"timestamp,omitempty"`
 	Members   []Member  `json:"members"`
 }
 
 // GetFronters gets the current fronters for a system
 func (s *Session) GetFronters(id string) (f Front, err error) {
-	if id == "" && (!s.Authorized || s.Token == "") {
-		return f, &ErrNoToken{}
+	if id == "" && (!s.authorized || s.token == "") {
+		return f, ErrNoToken
 	}
 	if id == "" {
 		if s.system == "" {
@@ -34,12 +34,17 @@ func (s *Session) GetFronters(id string) (f Front, err error) {
 		}
 	}
 
-	err = s.GetEndpoint("/s/"+id+"/fronters", &f)
+	err = s.getEndpoint("/s/"+id+"/fronters", &f)
 	return
 }
 
 // RegisterSwitch registers a switch with the given member IDs
 func (s *Session) RegisterSwitch(ids ...string) (err error) {
-	fmt.Println(ids)
+	b, err := json.Marshal(Switch{Members: ids})
+	if err != nil {
+		return err
+	}
+
+	_, err = s.postEndpoint("/s/switches", b, nil)
 	return
 }

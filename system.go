@@ -21,11 +21,11 @@ type System struct {
 
 // GetSystem gets the current token's system
 func (s *Session) GetSystem() (sys *System, err error) {
-	if !s.Authorized || s.Token == "" {
-		return nil, &ErrNoToken{}
+	if !s.authorized || s.token == "" {
+		return nil, ErrNoToken
 	}
 
-	err = s.GetEndpoint("/s", &sys)
+	err = s.getEndpoint("/s", &sys)
 	if err != nil {
 		return
 	}
@@ -38,17 +38,17 @@ func (s *Session) GetSystem() (sys *System, err error) {
 // GetSystemByID gets a system by its 5-character system ID
 func (s *Session) GetSystemByID(id string) (sys *System, err error) {
 	if !idRe.MatchString(id) {
-		return nil, &ErrInvalidID{id}
+		return nil, ErrInvalidID
 	}
-	err = s.GetEndpoint("/s/"+id, &sys)
+	err = s.getEndpoint("/s/"+id, &sys)
 	return
 }
 
 // GetSystemByUserID gets a system by a Discord snowflake (user ID)
 func (s *Session) GetSystemByUserID(id string) (sys *System, err error) {
 	if !discordIDre.MatchString(id) {
-		return nil, &ErrInvalidSnowflake{id}
+		return nil, ErrInvalidSnowflake
 	}
-	err = s.GetEndpoint("/a/"+id, &sys)
+	err = s.getEndpoint("/a/"+id, &sys)
 	return
 }

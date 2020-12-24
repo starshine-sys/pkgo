@@ -2,8 +2,8 @@ package pkgo
 
 // Session is the PluralKit API session, including a token
 type Session struct {
-	Authorized bool
-	Token      string
+	authorized bool
+	token      string
 	system     string
 }
 
@@ -16,8 +16,8 @@ type Config struct {
 func NewSession(c *Config) *Session {
 	if c != nil {
 		if c.Token != "" {
-			return &Session{Authorized: true, Token: c.Token}
+			return &Session{authorized: true, token: c.Token}
 		}
 	}
-	return &Session{Authorized: false}
+	return &Session{authorized: false}
 }

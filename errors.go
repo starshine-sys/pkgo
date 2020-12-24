@@ -1,13 +1,17 @@
 package pkgo
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-// ErrNoToken is returned when an endpoint requiring authentication is hit, but no token is given
-type ErrNoToken struct{}
-
-func (e *ErrNoToken) Error() string {
-	return "no token in session, can't hit endpoints requiring authentication"
-}
+// Errors
+var (
+	ErrNoToken          = errors.New("pkgo: no token in session, can't hit endpoints requiring authentication")
+	ErrInvalidID        = errors.New("pkgo: not a 5-character ID")
+	ErrInvalidSnowflake = errors.New("pkgo: not a valid Discord snowflake")
+	ErrMsgNotFound      = errors.New("pkgo: message not found")
+)
 
 // ErrStatusNot200 ...
 type ErrStatusNot200 struct {
@@ -17,31 +21,4 @@ type ErrStatusNot200 struct {
 
 func (e *ErrStatusNot200) Error() string {
 	return fmt.Sprintf("http status code %v: %v", e.Code, e.Status)
-}
-
-// ErrInvalidID is returned when a function requires a 5-letter ID but one isn't given
-type ErrInvalidID struct {
-	givenID string
-}
-
-func (e *ErrInvalidID) Error() string {
-	return fmt.Sprintf("5-letter, lowercase ID expected; %v given", e.givenID)
-}
-
-// ErrInvalidSnowflake is returned when a function expects a Discord snowflake but one isn't given
-type ErrInvalidSnowflake struct {
-	givenID string
-}
-
-func (e *ErrInvalidSnowflake) Error() string {
-	return fmt.Sprintf("discord snowflake expected; %v given", e.givenID)
-}
-
-// ErrMsgNotFound is returned when a message isn't found
-type ErrMsgNotFound struct {
-	ID string
-}
-
-func (e *ErrMsgNotFound) Error() string {
-	return fmt.Sprintf("message with ID %v not found", e.ID)
 }

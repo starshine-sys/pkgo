@@ -23,14 +23,14 @@ func (m Members) ToMaps() (map[string]string, map[string]string) {
 
 // GetMembers gets all members of a system
 func (s *Session) GetMembers(id string) (Members, error) {
-	if id == "" && (!s.Authorized || s.Token == "") {
-		return nil, &ErrNoToken{}
+	if id == "" && (!s.authorized || s.token == "") {
+		return nil, ErrNoToken
 	}
 
 	var m Members
 	if id == "" {
 		id = s.system
 	}
-	err := s.GetEndpoint("/s/"+id+"/members", &m)
+	err := s.getEndpoint("/s/"+id+"/members", &m)
 	return m, err
 }
