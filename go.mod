@@ -1,3 +1,3 @@
-module github.com/Starshine113/pkgo
+module github.com/starshine-sys/pkgo
 
 go 1.15
