@@ -26,6 +26,9 @@ func (s *Session) getEndpoint(endpoint string, data interface{}) error {
 		req.Header.Add("Authorization", s.token)
 	}
 
+	// block so we don't hit the rate limit
+	s.RateLimit()
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -62,6 +65,9 @@ func (s *Session) postEndpoint(endpoint string, data []byte, in interface{}) (in
 		return in, ErrNoToken
 	}
 	req.Header.Add("Content-Type", "application/json")
+
+	// block so we don't hit the rate limit
+	s.RateLimit()
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -102,6 +108,9 @@ func (s *Session) patchEndpoint(endpoint string, data []byte, in interface{}) (e
 		return ErrNoToken
 	}
 	req.Header.Add("Content-Type", "application/json")
+
+	// block so we don't hit the rate limit
+	s.RateLimit()
 
 	resp, err := client.Do(req)
 	if err != nil {
