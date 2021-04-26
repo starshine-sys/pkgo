@@ -33,6 +33,7 @@ func (s *Session) getEndpoint(endpoint string, data interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	// we hit the rate limit
 	if resp.StatusCode == 429 {
@@ -73,6 +74,8 @@ func (s *Session) postEndpoint(endpoint string, data []byte, in interface{}) (in
 	if err != nil {
 		return in, err
 	}
+	defer resp.Body.Close()
+
 	// we hit the rate limit
 	if resp.StatusCode == 429 {
 		return in, ErrRateLimit
@@ -116,6 +119,8 @@ func (s *Session) patchEndpoint(endpoint string, data []byte, in interface{}) (e
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
+
 	// we hit the rate limit
 	if resp.StatusCode == 429 {
 		return ErrRateLimit
