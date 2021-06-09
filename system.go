@@ -45,10 +45,7 @@ func (s *Session) GetSystemByID(id string) (sys *System, err error) {
 }
 
 // GetSystemByUserID gets a system by a Discord snowflake (user ID)
-func (s *Session) GetSystemByUserID(id string) (sys *System, err error) {
-	if !discordIDre.MatchString(id) {
-		return nil, ErrInvalidSnowflake
-	}
-	err = s.getEndpoint("/a/"+id, &sys)
+func (s *Session) GetSystemByUserID(id Snowflake) (sys *System, err error) {
+	err = s.getEndpoint("/a/"+id.String(), &sys)
 	return
 }
