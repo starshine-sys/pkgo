@@ -41,7 +41,7 @@ func (s *Session) getEndpoint(endpoint string, data interface{}) error {
 	}
 
 	if resp.StatusCode != 200 {
-		return &ErrStatusNot200{Code: resp.StatusCode, Status: resp.Status}
+		return &StatusError{Code: resp.StatusCode, Status: resp.Status}
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
@@ -51,7 +51,7 @@ func (s *Session) getEndpoint(endpoint string, data interface{}) error {
 	return json.Unmarshal(b, data)
 }
 
-// postEndpoint makes a request to a GET API endpoint
+// postEndpoint makes a request to a POST API endpoint
 func (s *Session) postEndpoint(endpoint string, data []byte, in interface{}) (interface{}, error) {
 	client := &http.Client{}
 
@@ -86,7 +86,7 @@ func (s *Session) postEndpoint(endpoint string, data []byte, in interface{}) (in
 	}
 
 	if resp.StatusCode != 200 {
-		return in, &ErrStatusNot200{Code: resp.StatusCode, Status: resp.Status}
+		return in, &StatusError{Code: resp.StatusCode, Status: resp.Status}
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)
@@ -127,7 +127,7 @@ func (s *Session) patchEndpoint(endpoint string, data []byte, in interface{}) (e
 	}
 
 	if resp.StatusCode != 200 {
-		return &ErrStatusNot200{Code: resp.StatusCode, Status: resp.Status}
+		return &StatusError{Code: resp.StatusCode, Status: resp.Status}
 	}
 
 	b, err := ioutil.ReadAll(resp.Body)

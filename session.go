@@ -9,7 +9,7 @@ import (
 type Session struct {
 	authorized bool
 	token      string
-	system     string
+	system     *System
 
 	// NoRate disables client-side rate limiting
 	NoRate bool
@@ -17,14 +17,23 @@ type Session struct {
 	rate sync.Mutex
 }
 
-// Config is the config struct, passed to (Session).NewToken()
+// Config is the config struct, passed to (Session).NewConfig()
 type Config struct {
 	Token  string
 	NoRate bool
 }
 
-// NewSession returns a session
-func NewSession(c *Config) *Session {
+// New returns a session with the given token, or no token if the string is empty.
+func New(token string) *Session {
+	if token != "" {
+		return &Session{authorized: true, token: token}
+	}
+
+	return &Session{authorized: false}
+}
+
+// NewConfig returns a session
+func NewConfig(c *Config) *Session {
 	if c != nil {
 		if c.Token != "" {
 			return &Session{authorized: true, token: c.Token, NoRate: c.NoRate}

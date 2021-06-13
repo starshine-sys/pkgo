@@ -3,6 +3,7 @@ package pkgo
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Color holds the color for a member
@@ -29,4 +30,85 @@ type ProxyTag struct {
 // String returns a <prefix>text<suffix> formatted version of the proxy tag
 func (p *ProxyTag) String() string {
 	return p.Prefix + "text" + p.Suffix
+}
+
+// Birthday is a member's birthday
+type Birthday time.Time
+
+// MarshalJSON ...
+func (bd Birthday) MarshalJSON() (b []byte, err error) {
+	if bd.Time().IsZero() {
+		return []byte("null"), nil
+	}
+
+	b = []byte(`"`)
+	b = time.Time(bd).AppendFormat(b, "2006-01-02")
+	return append(b, `"`...), nil
+}
+
+// UnmarshalJSON ...
+func (bd *Birthday) UnmarshalJSON(v []byte) error {
+	if string(v) == "null" {
+		*bd = Birthday(time.Time{})
+		return nil
+	}
+
+	t, err := time.Parse("2006-01-02", strings.Trim(string(v), `"`))
+	if err != nil {
+		return err
+	}
+
+	*bd = Birthday(t)
+	return nil
+}
+
+// Time returns bd as time.Time
+func (bd Birthday) Time() time.Time {
+	return time.Time(bd)
+}
+
+// ParseBirthday parses a birthday in yyyy-mm-dd or mm-dd format.
+func ParseBirthday(in string) (bd Birthday, err error) {
+	t, err := time.Parse("2006-01-02", in)
+	if err == nil {
+		return Birthday(t), nil
+	}
+
+	t, err = time.Parse("2006-01-02", "0004-"+in)
+	if err == nil {
+		return Birthday(t), nil
+	}
+
+	return
+}
+
+// Privacy is a system or member privacy field
+type Privacy string
+
+// MarshalJSON ...
+func (p Privacy) MarshalJSON() (b []byte, err error) {
+	if p == "" {
+		return []byte(`null`), nil
+	}
+
+	if p == "public" {
+		return []byte(`"public"`), nil
+	}
+
+	if p == "private" {
+		return []byte(`"private"`), nil
+	}
+
+	return nil, ErrPrivacyInvalid
+}
+
+// UnmarshalJSON ...
+func (p *Privacy) UnmarshalJSON(v []byte) error {
+	if string(v) == "null" {
+		*p = ""
+		return nil
+	}
+
+	*p = Privacy(strings.Trim(string(v), `"`))
+	return nil
 }
