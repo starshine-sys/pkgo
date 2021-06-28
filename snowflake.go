@@ -13,7 +13,7 @@ func (s Snowflake) String() string {
 	return fmt.Sprintf("%d", uint64(s))
 }
 
-// ParseSnowflake parses a snowflake from a string
+// ParseSnowflake parses a snowflake from a string.
 func ParseSnowflake(str string) (Snowflake, error) {
 	s, err := strconv.ParseUint(str, 0, 0)
 	if err != nil {

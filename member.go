@@ -2,7 +2,8 @@ package pkgo
 
 import "time"
 
-// Member holds information for a specific system member
+// Member holds information for a specific system member.
+// Fields set to private are empty.
 type Member struct {
 	ID      string    `json:"id"`
 	Created time.Time `json:"created"`
@@ -62,15 +63,7 @@ func (m Member) Validate() error {
 	return nil
 }
 
-// Birthday format constants
-const (
-	BirthdayMMDD         = "01-02"
-	BirthdayDDMM         = "02-01"
-	BirthdayMonthName    = "January 2"
-	BirthdayMonthNameRev = "2 January"
-)
-
-// String returns the member's displayed name--either DisplayName if one is set, otherwise Name
+// String returns the member's displayed name--either DisplayName if one is set, otherwise Name.
 func (m Member) String() string {
 	if m.DisplayName != "" {
 		return m.DisplayName

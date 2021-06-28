@@ -18,7 +18,7 @@ type Message struct {
 	Member Member `json:"member"`
 }
 
-// Message gets a message by Discord snowflake
+// Message gets a message by Discord snowflake.
 func (s *Session) Message(id Snowflake) (m *Message, err error) {
 	err = s.getEndpoint("/msg/"+id.String(), &m)
 	if err != nil {

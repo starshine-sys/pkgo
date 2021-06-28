@@ -42,7 +42,8 @@ func (s *Session) Me(force bool) (sys *System, err error) {
 	return
 }
 
-// System gets a system by its 5-character system ID
+// System gets a system by its 5-character system ID.
+// Some fields may be empty if unauthenticated and the system has chosen to make those fields private.
 func (s *Session) System(id string) (sys *System, err error) {
 	if !idRe.MatchString(id) {
 		return nil, ErrInvalidID
@@ -51,7 +52,7 @@ func (s *Session) System(id string) (sys *System, err error) {
 	return
 }
 
-// Account gets a system by a Discord snowflake (user ID)
+// Account gets a system by a Discord snowflake (user ID).
 func (s *Session) Account(id Snowflake) (sys *System, err error) {
 	err = s.getEndpoint("/a/"+id.String(), &sys)
 	return
