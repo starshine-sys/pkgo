@@ -33,6 +33,7 @@ type EditMemberData struct {
 	Color       Color    `json:"color,omitempty"`
 	Birthday    Birthday `json:"birthday,omitempty"`
 	AvatarURL   string   `json:"avatar_url,omitempty"`
+	Banner      string   `json:"banner,omitempty"`
 
 	ProxyTags []ProxyTag `json:"proxy_tags,omitempty"`
 	KeepProxy bool       `json:"keep_proxy,omitempty"`
@@ -66,6 +67,7 @@ type CreateMemberData struct {
 	Color       Color    `json:"color,omitempty"`
 	Birthday    Birthday `json:"birthday,omitempty"`
 	AvatarURL   string   `json:"avatar_url,omitempty"`
+	Banner      string   `json:"banner,omitempty"`
 
 	ProxyTags []ProxyTag `json:"proxy_tags,omitempty"`
 	KeepProxy bool       `json:"keep_proxy"`
