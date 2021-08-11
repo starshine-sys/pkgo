@@ -1,186 +1,99 @@
 package pkgo
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"emperror.dev/errors"
 )
 
-const baseURL = "https://api.pluralkit.me/v"
-const version = "1"
+var (
+	// BaseURL is the API base url
+	BaseURL = "https://api.pluralkit.me/v"
+	// Version is the API version
+	Version = "1"
+)
 
-// ErrRateLimit is returned when the API rate limit is hit
-var ErrRateLimit = errors.New("pkgo: hit API rate limits")
+// Errors returned by Request
+const (
+	ErrRateLimit = errors.Sentinel("pkgo: hit API rate limits")
 
-// getEndpoint makes a request to a GET API endpoint
-func (s *Session) getEndpoint(endpoint string, data interface{}) error {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", baseURL+version+endpoint, nil)
+	ErrBadRequest    = errors.Sentinel("pkgo: 400 bad request")
+	ErrUnauthorized  = errors.Sentinel("pkgo: 401 unauthorized")
+	ErrNotFound      = errors.Sentinel("pkgo: 404 not found")
+	ErrAlreadyExists = errors.Sentinel("pkgo: 409 resource already exists")
+	ErrUnprocessable = errors.Sentinel("pkgo: 422 unprocessable entity")
+	ErrUnavailable   = errors.Sentinel("pkgo: 503 service unavailable")
+)
+
+type apiError int
+
+func (e apiError) Error() string {
+	return fmt.Sprintf("%v %v", int(e), http.StatusText(int(e)))
+}
+
+// Request makes a request returning a JSON body.
+func (s *Session) Request(method, endpoint string, opts ...RequestOption) (response []byte, err error) {
+	req, err := http.NewRequest(method, s.BaseURL+endpoint, nil)
 	if err != nil {
-		return fmt.Errorf("pkgo: error creating request: %w", err)
-	}
-	if s.authorized {
-		req.Header.Add("Authorization", s.token)
+		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
-	defer cancel()
+	for _, opt := range opts {
+		err = opt(req)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	err = s.rate.Wait(ctx)
+	if s.token != "" {
+		req.Header.Set("Authorization", s.token)
+	}
+
+	resp, err := s.Client.Do(req)
 	if err != nil {
-		return errors.Wrap(err, "s.getEndpoint")
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
+		return
 	}
 	defer resp.Body.Close()
 
-	// we hit the rate limit
-	if resp.StatusCode == 429 {
-		return ErrRateLimit
-	}
-
-	if resp.StatusCode != 200 {
-		return &StatusError{Code: resp.StatusCode, Status: resp.Status}
-	}
-
-	b, err := ioutil.ReadAll(resp.Body)
+	response, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, "s.getEndpoint")
+		return
 	}
-	err = json.Unmarshal(b, data)
-	return errors.Wrap(err, "s.getEndpoint")
+
+	switch resp.StatusCode {
+	case http.StatusOK, http.StatusNoContent, http.StatusCreated:
+	case http.StatusBadRequest:
+		return
+	case http.StatusUnauthorized:
+		return nil, ErrUnauthorized
+	case http.StatusNotFound:
+		return nil, ErrNotFound
+	case http.StatusConflict:
+		return nil, ErrAlreadyExists
+	case http.StatusUnprocessableEntity:
+		return nil, ErrUnprocessable
+	case http.StatusServiceUnavailable:
+		return nil, ErrUnavailable
+	default:
+		return nil, apiError(resp.StatusCode)
+	}
+
+	return response, err
 }
 
-// postEndpoint makes a request to a POST API endpoint
-func (s *Session) postEndpoint(endpoint string, data []byte, in interface{}) (interface{}, error) {
-	client := &http.Client{}
-
-	req, err := http.NewRequest("POST", baseURL+version+endpoint, bytes.NewBuffer(data))
-	if err != nil {
-		return in, fmt.Errorf("pkgo: error creating request: %w", err)
-	}
-
-	if s.authorized {
-		req.Header.Add("Authorization", s.token)
-	} else {
-		return in, ErrNoToken
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
-	defer cancel()
-
-	err = s.rate.Wait(ctx)
-	if err != nil {
-		return in, errors.Wrap(err, "pkgo: s.postEndpoint")
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return in, errors.Wrap(err, "pkgo: s.postEndpoint")
-	}
-	defer resp.Body.Close()
-
-	// we hit the rate limit
-	if resp.StatusCode == 429 {
-		return in, ErrRateLimit
-	}
-
-	if resp.StatusCode == 204 {
-		return nil, nil
-	}
-
-	if resp.StatusCode != 200 {
-		return in, &StatusError{Code: resp.StatusCode, Status: resp.Status}
-	}
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return in, errors.Wrap(err, "pkgo: s.postEndpoint")
-	}
-	err = json.Unmarshal(b, in)
-	return in, errors.Wrap(err, "pkgo: s.postEndpoint")
-}
-
-func (s *Session) patchEndpoint(endpoint string, data []byte, in interface{}) (err error) {
-	client := &http.Client{}
-
-	req, err := http.NewRequest("PATCH", baseURL+version+endpoint, bytes.NewBuffer(data))
-	if err != nil {
-		return fmt.Errorf("pkgo: error creating request: %w", err)
-	}
-
-	if s.authorized {
-		req.Header.Add("Authorization", s.token)
-	} else {
-		return ErrNoToken
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
-	defer cancel()
-
-	err = s.rate.Wait(ctx)
-	if err != nil {
-		return errors.Wrap(err, "s.patchEndpoint")
-	}
-
-	resp, err := client.Do(req)
+// RequestJSON makes a request returning a JSON body.
+func (s *Session) RequestJSON(method, endpoint string, v interface{}, opts ...RequestOption) error {
+	resp, err := s.Request(method, endpoint, opts...)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
-	// we hit the rate limit
-	if resp.StatusCode == 429 {
-		return ErrRateLimit
+	if v == nil {
+		return nil
 	}
 
-	if resp.StatusCode != 200 {
-		return &StatusError{Code: resp.StatusCode, Status: resp.Status}
-	}
-
-	b, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return errors.Wrap(err, "s.patchEndpoint")
-	}
-	err = json.Unmarshal(b, in)
-	return errors.Wrap(err, "s.patchEndpoint")
-}
-
-func (s *Session) deleteEndpoint(endpoint string) (err error) {
-	client := &http.Client{}
-
-	req, err := http.NewRequest("DELETE", baseURL+version+endpoint, nil)
-	if err != nil {
-		return fmt.Errorf("pkgo: error creating request: %w", err)
-	}
-
-	if s.authorized {
-		req.Header.Add("Authorization", s.token)
-	} else {
-		return ErrNoToken
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
-	defer cancel()
-
-	err = s.rate.Wait(ctx)
-	if err != nil {
-		return errors.Wrap(err, "s.deleteEndpoint")
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	return resp.Body.Close()
+	return json.Unmarshal(resp, v)
 }

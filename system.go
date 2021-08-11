@@ -1,7 +1,6 @@
 package pkgo
 
 import (
-	"encoding/json"
 	"time"
 )
 
@@ -25,7 +24,7 @@ type System struct {
 // Me gets the current token's system.
 // If force is set to true, this will always fetch the system from the API.
 func (s *Session) Me(force bool) (sys *System, err error) {
-	if !s.authorized || s.token == "" {
+	if s.token == "" {
 		return nil, ErrNoToken
 	}
 
@@ -33,7 +32,8 @@ func (s *Session) Me(force bool) (sys *System, err error) {
 		return s.system, nil
 	}
 
-	err = s.getEndpoint("/s", &sys)
+	sys = &System{}
+	err = s.RequestJSON("GET", "/s", sys)
 	if err != nil {
 		return
 	}
@@ -48,13 +48,16 @@ func (s *Session) System(id string) (sys *System, err error) {
 	if !idRe.MatchString(id) {
 		return nil, ErrInvalidID
 	}
-	err = s.getEndpoint("/s/"+id, &sys)
+
+	sys = &System{}
+	err = s.RequestJSON("GET", "/s/"+id, sys)
 	return
 }
 
 // Account gets a system by a Discord snowflake (user ID).
 func (s *Session) Account(id Snowflake) (sys *System, err error) {
-	err = s.getEndpoint("/a/"+id.String(), &sys)
+	sys = &System{}
+	err = s.RequestJSON("GET", "/a/"+id.String(), &sys)
 	return
 }
 
@@ -74,13 +77,8 @@ type EditSystemData struct {
 
 // EditSystem edits your system with the provided data.
 func (s *Session) EditSystem(psd EditSystemData) (sys *System, err error) {
-	b, err := json.Marshal(psd)
-	if err != nil {
-		return sys, err
-	}
-
 	sys = &System{}
-	err = s.patchEndpoint("/s", b, sys)
+	err = s.RequestJSON("PATCH", "/s", sys, WithJSONBody(psd))
 	if err != nil {
 		return nil, err
 	}

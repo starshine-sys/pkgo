@@ -20,14 +20,7 @@ type Message struct {
 
 // Message gets a message by Discord snowflake.
 func (s *Session) Message(id Snowflake) (m *Message, err error) {
-	err = s.getEndpoint("/msg/"+id.String(), &m)
-	if err != nil {
-		switch err.(type) {
-		case *StatusError:
-			return m, ErrMsgNotFound
-		default:
-			return m, err
-		}
-	}
-	return m, err
+	m = &Message{}
+	err = s.RequestJSON("GET", "/msg/"+id.String(), m)
+	return
 }

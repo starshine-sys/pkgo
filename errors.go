@@ -1,17 +1,18 @@
 package pkgo
 
 import (
-	"errors"
 	"fmt"
+
+	"emperror.dev/errors"
 )
 
 // Errors
-var (
-	ErrNoToken          = errors.New("pkgo: no token in session, can't hit endpoints requiring authentication")
-	ErrInvalidID        = errors.New("pkgo: not a 5-character ID")
-	ErrInvalidSnowflake = errors.New("pkgo: not a valid Discord snowflake")
-	ErrMsgNotFound      = errors.New("pkgo: message not found")
-	ErrPrivacyInvalid   = errors.New("pkgo: invalid privacy setting")
+const (
+	ErrNoToken          = errors.Sentinel("pkgo: no token in session, can't hit endpoints requiring authentication")
+	ErrInvalidID        = errors.Sentinel("pkgo: not a 5-character ID")
+	ErrInvalidSnowflake = errors.Sentinel("pkgo: not a valid Discord snowflake")
+	ErrMsgNotFound      = errors.Sentinel("pkgo: message not found")
+	ErrPrivacyInvalid   = errors.Sentinel("pkgo: invalid privacy setting")
 )
 
 // StatusError is returned when a request returns a non-200 status code

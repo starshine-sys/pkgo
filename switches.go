@@ -1,7 +1,7 @@
 package pkgo
 
 import (
-	"encoding/json"
+	"net/url"
 	"time"
 )
 
@@ -20,7 +20,7 @@ type Front struct {
 // Fronters gets the current fronters for a system.
 // If the system's fronters are set to private, requires authentication.
 func (s *Session) Fronters(id string) (f Front, err error) {
-	if id == "" && (!s.authorized || s.token == "") {
+	if id == "" && s.token == "" {
 		return f, ErrNoToken
 	}
 	if id == "" {
@@ -35,7 +35,7 @@ func (s *Session) Fronters(id string) (f Front, err error) {
 		}
 	}
 
-	err = s.getEndpoint("/s/"+id+"/fronters", &f)
+	err = s.RequestJSON("GET", "/s/"+id+"/fronters", &f)
 	return
 }
 
@@ -43,7 +43,8 @@ func (s *Session) Fronters(id string) (f Front, err error) {
 // For earlier switches, see SwitchesBefore.
 // If the system's font history is set to private, requires authentication.
 func (s *Session) Switches(id string) (switches []Switch, err error) {
-	err = s.getEndpoint("/s/"+id+"/switches", &switches)
+	switches = []Switch{}
+	err = s.RequestJSON("GET", "/s/"+id+"/switches", &switches)
 	return
 }
 
@@ -53,17 +54,17 @@ func (s *Session) Switches(id string) (switches []Switch, err error) {
 func (s *Session) SwitchesBefore(id string, before time.Time) (switches []Switch, err error) {
 	t := before.UTC().Format("2006-01-02T15:04:05")
 
-	err = s.getEndpoint("/s/"+id+"/switches?before="+t+"Z", &switches)
+	switches = []Switch{}
+	err = s.RequestJSON("GET", "/s/"+id+"/switches", &switches, WithURLValues(url.Values{
+		"before": {t + "Z"},
+	}))
 	return
 }
 
 // RegisterSwitch registers a switch with the given member IDs. Requires authentication.
 func (s *Session) RegisterSwitch(ids ...string) (err error) {
-	b, err := json.Marshal(Switch{Members: ids})
-	if err != nil {
-		return err
-	}
-
-	_, err = s.postEndpoint("/s/switches", b, nil)
+	_, err = s.Request("POST", "/s/switches", WithJSONBody(Switch{
+		Members: ids,
+	}))
 	return
 }
