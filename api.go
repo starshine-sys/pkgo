@@ -1,6 +1,7 @@
 package pkgo
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,15 +42,17 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 		return
 	}
 
-	for _, opt := range opts {
-		err = opt(req)
-		if err != nil {
-			return nil, err
-		}
+	err = s.applyOpts(req, opts)
+	if err != nil {
+		return nil, err
 	}
 
-	if s.token != "" {
-		req.Header.Set("Authorization", s.token)
+	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
+	defer cancel()
+
+	err = s.rate.Wait(ctx)
+	if err != nil {
+		return
 	}
 
 	resp, err := s.Client.Do(req)
@@ -96,4 +99,18 @@ func (s *Session) RequestJSON(method, endpoint string, v interface{}, opts ...Re
 	}
 
 	return json.Unmarshal(resp, v)
+}
+
+// applyOpts applies all options to the given request and returns the last error returned by an option.
+func (s *Session) applyOpts(r *http.Request, opts []RequestOption) (err error) {
+	// apply global options
+	for _, opt := range s.RequestOptions {
+		err = opt(r)
+	}
+
+	// apply local options
+	for _, opt := range opts {
+		err = opt(r)
+	}
+	return
 }
