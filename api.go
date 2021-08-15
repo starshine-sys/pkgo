@@ -69,7 +69,7 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusNoContent, http.StatusCreated:
 	case http.StatusBadRequest:
-		return
+		return nil, ErrBadRequest
 	case http.StatusUnauthorized:
 		return nil, ErrUnauthorized
 	case http.StatusNotFound:
@@ -80,6 +80,8 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 		return nil, ErrUnprocessable
 	case http.StatusServiceUnavailable:
 		return nil, ErrUnavailable
+	case http.StatusTooManyRequests:
+		return nil, ErrRateLimit
 	default:
 		return nil, apiError(resp.StatusCode)
 	}

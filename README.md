@@ -1,6 +1,6 @@
 # pkgo
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/starshine-sys/pkgo.svg)](https://pkg.go.dev/github.com/starshine-sys/pkgo)
+[![Go Reference](https://pkg.go.dev/badge/github.com/starshine-sys/pkgo.svg)](https://pkg.go.dev/github.com/starshine-sys/pkgo) [![godocs.io](http://godocs.io/github.com/starshine-sys/pkgo?status.svg)](http://godocs.io/github.com/starshine-sys/pkgo)
 
 `pkgo` is a simple wrapper around [PluralKit](https://pluralkit.me/)'s REST API.
 
