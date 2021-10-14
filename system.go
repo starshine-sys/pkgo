@@ -14,6 +14,7 @@ type System struct {
 	Tag         string `json:"tag,omitempty"`
 	AvatarURL   string `json:"avatar_url,omitempty"`
 	Banner      string `json:"banner,omitempty"`
+	Color       string `json:"color,omitempty"`
 	Timezone    string `json:"tz,omitempty"`
 
 	DescriptionPrivacy  Privacy `json:"description_privacy,omitempty"`
@@ -69,6 +70,7 @@ type EditSystemData struct {
 	Tag         string `json:"tag,omitempty"`
 	AvatarURL   string `json:"avatar_url,omitempty"`
 	Banner      string `json:"banner,omitempty"`
+	Color       string `json:"color,omitempty"`
 	Timezone    string `json:"tz,omitempty"`
 
 	DescriptionPrivacy  Privacy `json:"description_privacy,omitempty"`
