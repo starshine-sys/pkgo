@@ -2,12 +2,18 @@ package pkgo
 
 import (
 	"emperror.dev/errors"
+	"github.com/google/uuid"
 )
 
 // Member gets a member by their ID.
 func (s *Session) Member(id string) (m Member, err error) {
-	err = s.RequestJSON("GET", "/m/"+id, &m)
+	err = s.RequestJSON("GET", "/members/"+id, &m)
 	return
+}
+
+// MemberByUUID gets a member by their UUID.
+func (s *Session) MemberByUUID(id uuid.UUID) (Member, error) {
+	return s.Member(id.String())
 }
 
 // Members gets all members of a system.
@@ -19,38 +25,32 @@ func (s *Session) Members(id string) ([]Member, error) {
 	}
 
 	m := []Member{}
-	err := s.RequestJSON("GET", "/s/"+id+"/members", &m)
+	err := s.RequestJSON("GET", "/systems/"+id+"/members", &m)
 	return m, err
 }
 
 // EditMemberData is the data for s.EditMember.
 type EditMemberData struct {
-	Name        string `json:"name,omitempty"`
-	DisplayName string `json:"display_name,omitempty"`
+	Name        NullableString `json:"name,omitempty"`
+	DisplayName NullableString `json:"display_name,omitempty"`
 
-	Description string   `json:"description,omitempty"`
-	Pronouns    string   `json:"pronouns,omitempty"`
-	Color       Color    `json:"color,omitempty"`
-	Birthday    Birthday `json:"birthday,omitempty"`
-	AvatarURL   string   `json:"avatar_url,omitempty"`
-	Banner      string   `json:"banner,omitempty"`
+	Description NullableString `json:"description,omitempty"`
+	Pronouns    NullableString `json:"pronouns,omitempty"`
+	Color       *Color         `json:"color,omitempty"`
+	Birthday    *Birthday      `json:"birthday,omitempty"`
+	AvatarURL   NullableString `json:"avatar_url,omitempty"`
+	Banner      NullableString `json:"banner,omitempty"`
 
 	ProxyTags []ProxyTag `json:"proxy_tags,omitempty"`
 	KeepProxy bool       `json:"keep_proxy,omitempty"`
 
-	Visibility         Privacy `json:"visibility,omitempty"`
-	NamePrivacy        Privacy `json:"name_privacy,omitempty"`
-	DescriptionPrivacy Privacy `json:"description_privacy,omitempty"`
-	AvatarPrivacy      Privacy `json:"avatar_privacy,omitempty"`
-	BirthdayPrivacy    Privacy `json:"birthday_privacy,omitempty"`
-	PronounPrivacy     Privacy `json:"pronoun_privacy,omitempty"`
-	MetadataPrivacy    Privacy `json:"metadata_privacy,omitempty"`
+	Privacy *MemberPrivacy `json:"privacy,omitempty"`
 }
 
 // EditMember edits a member by ID. Requires authentication.
 func (s *Session) EditMember(id string, emd EditMemberData) (*Member, error) {
 	m := &Member{}
-	err := s.RequestJSON("PATCH", "/m/"+id, m, WithJSONBody(emd))
+	err := s.RequestJSON("PATCH", "/members/"+id, m, WithJSONBody(emd))
 	if err != nil {
 		return nil, err
 	}
@@ -72,23 +72,17 @@ type CreateMemberData struct {
 	ProxyTags []ProxyTag `json:"proxy_tags,omitempty"`
 	KeepProxy bool       `json:"keep_proxy"`
 
-	Visibility         Privacy `json:"visibility,omitempty"`
-	NamePrivacy        Privacy `json:"name_privacy,omitempty"`
-	DescriptionPrivacy Privacy `json:"description_privacy,omitempty"`
-	AvatarPrivacy      Privacy `json:"avatar_privacy,omitempty"`
-	BirthdayPrivacy    Privacy `json:"birthday_privacy,omitempty"`
-	PronounPrivacy     Privacy `json:"pronoun_privacy,omitempty"`
-	MetadataPrivacy    Privacy `json:"metadata_privacy,omitempty"`
+	Privacy *MemberPrivacy `json:"privacy,omitempty"`
 }
 
 // CreateMember creates a member. Requires authentication.
 func (s *Session) CreateMember(data CreateMemberData) (m Member, err error) {
-	err = s.RequestJSON("POST", "/m", &m, WithJSONBody(data))
+	err = s.RequestJSON("POST", "/members", &m, WithJSONBody(data))
 	return
 }
 
 // DeleteMember deletes a member. Requires authentication.
 func (s *Session) DeleteMember(id string) (err error) {
-	_, err = s.Request("DELETE", "/m/"+id)
+	_, err = s.Request("DELETE", "/members/"+id)
 	return
 }

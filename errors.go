@@ -13,16 +13,31 @@ const (
 	ErrInvalidSnowflake = errors.Sentinel("pkgo: not a valid Discord snowflake")
 	ErrMsgNotFound      = errors.Sentinel("pkgo: message not found")
 	ErrPrivacyInvalid   = errors.Sentinel("pkgo: invalid privacy setting")
+	ErrInvalidProxyTag  = errors.Sentinel("pkgo: invalid proxy tag")
 )
 
-// StatusError is returned when a request returns a non-200 status code
-type StatusError struct {
-	Code   int
-	Status string
+// PKAPIError is an error returned by the PluralKit API
+type PKAPIError struct {
+	StatusCode int                     `json:"-"`
+	Code       int                     `json:"code"`
+	RetryAfter *int                    `json:"retry_after,omitempty"`
+	Message    string                  `json:"message"`
+	Errors     map[string][]ModelError `json:"errors,omitempty"`
 }
 
-func (e *StatusError) Error() string {
-	return fmt.Sprintf("http status code %v: %v", e.Code, e.Status)
+func (e PKAPIError) Error() string {
+	if e.RetryAfter != nil {
+		return fmt.Sprintf("rate limited, retry after %dms", *e.RetryAfter)
+	}
+
+	return fmt.Sprintf("%d: %s", e.Code, e.Message)
+}
+
+// ModelError ...
+type ModelError struct {
+	Message      string `json:"message"`
+	MaxLength    int    `json:"max_length"`
+	ActualLength int    `json:"actual_length"`
 }
 
 // InvalidError is returned when the data for a PATCH or POST endpoint is invalid.

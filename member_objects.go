@@ -1,6 +1,8 @@
 package pkgo
 
 import (
+	"encoding/json"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -8,6 +10,8 @@ import (
 
 // Color holds the color for a member
 type Color string
+
+var colorRe = regexp.MustCompile("(i)^[\\dabcdef]{6}$")
 
 // IsValid returns true if the color is valid for PK
 func (c Color) IsValid() bool {
@@ -27,9 +31,34 @@ type ProxyTag struct {
 	Suffix string `json:"suffix,omitempty"`
 }
 
+// MarshalJSON marshals the ProxyTag to json
+func (t ProxyTag) MarshalJSON() (b []byte, err error) {
+	if t.Prefix == "" && t.Suffix == "" {
+		return nil, ErrInvalidProxyTag
+	}
+
+	if len(t.String()) > 100 {
+		return nil, ErrInvalidProxyTag
+	}
+
+	dat := struct {
+		Prefix *string `json:"prefix"`
+		Suffix *string `json:"suffix"`
+	}{}
+
+	if t.Prefix != "" {
+		dat.Prefix = &t.Prefix
+	}
+	if t.Suffix != "" {
+		dat.Suffix = &t.Suffix
+	}
+
+	return json.Marshal(dat)
+}
+
 // String returns a <prefix>text<suffix> formatted version of the proxy tag
-func (p *ProxyTag) String() string {
-	return p.Prefix + "text" + p.Suffix
+func (t ProxyTag) String() string {
+	return t.Prefix + "text" + t.Suffix
 }
 
 // Birthday is a member's birthday
@@ -82,7 +111,8 @@ func ParseBirthday(in string) (bd Birthday, err error) {
 	return
 }
 
-// Privacy is a system or member privacy field
+// Privacy is a system or member privacy field.
+// Note: an empty Privacy is marshaled as null.
 type Privacy string
 
 // MarshalJSON ...

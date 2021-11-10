@@ -1,32 +1,42 @@
 package pkgo
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // Member holds information for a specific system member.
 // Fields set to private are empty.
 type Member struct {
-	ID      string    `json:"id"`
-	Created time.Time `json:"created"`
+	ID   string    `json:"id"`
+	UUID uuid.UUID `json:"uuid"`
 
-	Name        string `json:"name,omitempty"`
-	DisplayName string `json:"display_name,omitempty"`
-
-	Description string   `json:"description,omitempty"`
-	Pronouns    string   `json:"pronouns,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	DisplayName string   `json:"display_name,omitempty"`
 	Color       Color    `json:"color,omitempty"`
 	Birthday    Birthday `json:"birthday,omitempty"`
+	Pronouns    string   `json:"pronouns,omitempty"`
 	AvatarURL   string   `json:"avatar_url,omitempty"`
 	Banner      string   `json:"banner,omitempty"`
+	Description string   `json:"description,omitempty"`
+
+	Created time.Time `json:"created"`
 
 	ProxyTags []ProxyTag `json:"proxy_tags,omitempty"`
 	KeepProxy bool       `json:"keep_proxy"`
 
+	Privacy *MemberPrivacy `json:"privacy,omitempty"`
+}
+
+// MemberPrivacy ...
+type MemberPrivacy struct {
 	Visibility         Privacy `json:"visibility,omitempty"`
 	NamePrivacy        Privacy `json:"name_privacy,omitempty"`
 	DescriptionPrivacy Privacy `json:"description_privacy,omitempty"`
-	AvatarPrivacy      Privacy `json:"avatar_privacy,omitempty"`
 	BirthdayPrivacy    Privacy `json:"birthday_privacy,omitempty"`
 	PronounPrivacy     Privacy `json:"pronoun_privacy,omitempty"`
+	AvatarPrivacy      Privacy `json:"avatar_privacy,omitempty"`
 	MetadataPrivacy    Privacy `json:"metadata_privacy,omitempty"`
 }
 
@@ -51,7 +61,7 @@ func (m Member) Validate() error {
 	}
 
 	// Privacy fields can only be "public", "private", or null
-	for _, f := range []Privacy{m.Visibility, m.NamePrivacy, m.DescriptionPrivacy, m.AvatarPrivacy, m.BirthdayPrivacy, m.PronounPrivacy, m.MetadataPrivacy} {
+	for _, f := range []Privacy{m.Privacy.Visibility, m.Privacy.NamePrivacy, m.Privacy.DescriptionPrivacy, m.Privacy.AvatarPrivacy, m.Privacy.BirthdayPrivacy, m.Privacy.PronounPrivacy, m.Privacy.MetadataPrivacy} {
 		if f != "private" && f != "public" && f != "" {
 			return &InvalidError{"Privacy", string(f)}
 		}

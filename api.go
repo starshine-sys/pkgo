@@ -14,7 +14,7 @@ var (
 	// BaseURL is the API base url
 	BaseURL = "https://api.pluralkit.me/v"
 	// Version is the API version
-	Version = "1"
+	Version = "2"
 )
 
 // Errors returned by Request
@@ -66,24 +66,14 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 		return
 	}
 
-	switch resp.StatusCode {
-	case http.StatusOK, http.StatusNoContent, http.StatusCreated:
-	case http.StatusBadRequest:
-		return nil, ErrBadRequest
-	case http.StatusUnauthorized:
-		return nil, ErrUnauthorized
-	case http.StatusNotFound:
-		return nil, ErrNotFound
-	case http.StatusConflict:
-		return nil, ErrAlreadyExists
-	case http.StatusUnprocessableEntity:
-		return nil, ErrUnprocessable
-	case http.StatusServiceUnavailable:
-		return nil, ErrUnavailable
-	case http.StatusTooManyRequests:
-		return nil, ErrRateLimit
-	default:
-		return nil, apiError(resp.StatusCode)
+	if resp.StatusCode >= 400 {
+		var e PKAPIError
+		err = json.Unmarshal(response, &e)
+		if err != nil {
+			return nil, apiError(resp.StatusCode)
+		}
+		e.StatusCode = resp.StatusCode
+		return nil, &e
 	}
 
 	return response, err
