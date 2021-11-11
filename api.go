@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"emperror.dev/errors"
 )
 
 var (
@@ -15,18 +13,6 @@ var (
 	BaseURL = "https://api.pluralkit.me/v"
 	// Version is the API version
 	Version = "2"
-)
-
-// Errors returned by Request
-const (
-	ErrRateLimit = errors.Sentinel("pkgo: hit API rate limits")
-
-	ErrBadRequest    = errors.Sentinel("pkgo: 400 bad request")
-	ErrUnauthorized  = errors.Sentinel("pkgo: 401 unauthorized")
-	ErrNotFound      = errors.Sentinel("pkgo: 404 not found")
-	ErrAlreadyExists = errors.Sentinel("pkgo: 409 resource already exists")
-	ErrUnprocessable = errors.Sentinel("pkgo: 422 unprocessable entity")
-	ErrUnavailable   = errors.Sentinel("pkgo: 503 service unavailable")
 )
 
 type apiError int
