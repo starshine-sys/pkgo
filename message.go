@@ -19,8 +19,7 @@ type Message struct {
 }
 
 // Message gets a message by Discord snowflake.
-func (s *Session) Message(id Snowflake) (m *Message, err error) {
-	m = &Message{}
-	err = s.RequestJSON("GET", "/messages/"+id.String(), m)
+func (s *Session) Message(id Snowflake) (m Message, err error) {
+	err = s.RequestJSON("GET", "/messages/"+id.String(), &m)
 	return
 }

@@ -48,12 +48,9 @@ type EditMemberData struct {
 }
 
 // EditMember edits a member by ID. Requires authentication.
-func (s *Session) EditMember(id string, emd EditMemberData) (*Member, error) {
-	m := &Member{}
-	err := s.RequestJSON("PATCH", "/members/"+id, m, WithJSONBody(emd))
-	if err != nil {
-		return nil, err
-	}
+func (s *Session) EditMember(id string, emd EditMemberData) (Member, error) {
+	var m Member
+	err := s.RequestJSON("PATCH", "/members/"+id, &m, WithJSONBody(emd))
 	return m, err
 }
 

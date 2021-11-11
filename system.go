@@ -35,13 +35,13 @@ type SystemPrivacy struct {
 
 // Me gets the current token's system.
 // If force is set to true, this will always fetch the system from the API.
-func (s *Session) Me(force bool) (sys *System, err error) {
+func (s *Session) Me(force bool) (sys System, err error) {
 	if s.token == "" {
-		return nil, ErrNoToken
+		return sys, ErrNoToken
 	}
 
 	if !force && s.system != nil {
-		return s.system, nil
+		return *s.system, nil
 	}
 
 	sys, err = s.System("@me")
@@ -49,26 +49,25 @@ func (s *Session) Me(force bool) (sys *System, err error) {
 		return
 	}
 
-	s.system = sys
+	s.system = &sys
 	return
 }
 
 // System gets a system by its 5-character system ID.
 // Some fields may be empty if unauthenticated and the system has chosen to make those fields private.
-func (s *Session) System(id string) (sys *System, err error) {
-	sys = &System{}
-	err = s.RequestJSON("GET", "/systems/"+id, sys)
+func (s *Session) System(id string) (sys System, err error) {
+	err = s.RequestJSON("GET", "/systems/"+id, &sys)
 	return
 }
 
 // SystemByUUID gets a system by its UUID.
 // See s.System for more documentation.
-func (s *Session) SystemByUUID(id uuid.UUID) (*System, error) {
+func (s *Session) SystemByUUID(id uuid.UUID) (System, error) {
 	return s.System(id.String())
 }
 
 // Account gets a system by a Discord snowflake (user ID).
-func (s *Session) Account(id Snowflake) (sys *System, err error) {
+func (s *Session) Account(id Snowflake) (sys System, err error) {
 	return s.System(id.String())
 }
 
@@ -85,11 +84,7 @@ type EditSystemData struct {
 }
 
 // EditSystem edits your system with the provided data.
-func (s *Session) EditSystem(psd EditSystemData) (sys *System, err error) {
-	sys = &System{}
-	err = s.RequestJSON("PATCH", "/systems/@me", sys, WithJSONBody(psd))
-	if err != nil {
-		return nil, err
-	}
+func (s *Session) EditSystem(psd EditSystemData) (sys System, err error) {
+	err = s.RequestJSON("PATCH", "/systems/@me", &sys, WithJSONBody(psd))
 	return sys, err
 }
