@@ -7,3 +7,11 @@ type NullableString = *string
 func NewNullableString(s string) NullableString {
 	return &s
 }
+
+// NullableBool is a nullable bool for use in post/patch endpoints
+type NullableBool = *bool
+
+// NewNullableBool creates a new nullable bool with the given value
+func NewNullableBool(b bool) NullableBool {
+	return &b
+}

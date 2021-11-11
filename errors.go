@@ -33,6 +33,39 @@ func (e PKAPIError) Error() string {
 	return fmt.Sprintf("%d: %s", e.Code, e.Message)
 }
 
+// Error codes
+const (
+	SystemNotFound        = 20001
+	MemberNotFound        = 20002
+	MemberNotFoundWithRef = 20003
+	GroupNotFound         = 20004
+	GroupNotFoundWithRef  = 20005
+	MessageNotFound       = 20006
+	SwitchNotFound        = 20007
+	SwitchNotFoundPublic  = 20008
+	SystemGuildNotFound   = 20009
+	MemberGuildNotFound   = 20010
+
+	UnauthorizedMemberList      = 30001
+	UnauthorizedGroupList       = 30002
+	UnauthorizedGroupMemberList = 30003
+	UnauthorizedCurrentFronters = 30004
+	UnauthorizedFrontHistory    = 30005
+	NotOwnMember                = 30006
+	NotOwnGroup                 = 30007
+	NotOwnMemberWithRef         = 30008
+	NotOwnGroupWithRef          = 30009
+	MissingAutoproxyMember      = 40002
+	DuplicateMembersInList      = 40003
+	SameSwitchMembers           = 40004
+	SameSwitchTimestamp         = 40005
+	InvalidSwitchID             = 40006
+	MemberLimitReached          = 40007
+	GroupLimitReached           = 40008
+
+	Unimplemented = 50001
+)
+
 // ModelError ...
 type ModelError struct {
 	Message      string `json:"message"`
