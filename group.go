@@ -106,18 +106,30 @@ func (s *Session) DeleteGroup(id string) (err error) {
 
 // AddGroupMembers adds the given member IDs to the given group.
 func (s *Session) AddGroupMembers(groupID string, memberIDs []string) (err error) {
+	if memberIDs == nil {
+		memberIDs = []string{}
+	}
+
 	_, err = s.Request("POST", "/groups/"+groupID+"/members/add", WithJSONBody(memberIDs))
 	return
 }
 
 // RemoveGroupMembers removes the given member IDs from the given group.
 func (s *Session) RemoveGroupMembers(groupID string, memberIDs []string) (err error) {
+	if memberIDs == nil {
+		memberIDs = []string{}
+	}
+
 	_, err = s.Request("POST", "/groups/"+groupID+"/members/remove", WithJSONBody(memberIDs))
 	return
 }
 
 // OverwriteGroupMembers overwrites a group's members with the given member IDs.
 func (s *Session) OverwriteGroupMembers(groupID string, memberIDs []string) (err error) {
+	if memberIDs == nil {
+		memberIDs = []string{}
+	}
+
 	_, err = s.Request("POST", "/groups/"+groupID+"/members/overwrite", WithJSONBody(memberIDs))
 	return
 }

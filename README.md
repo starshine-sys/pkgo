@@ -1,6 +1,6 @@
 # pkgo
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/starshine-sys/pkgo.svg)](https://pkg.go.dev/github.com/starshine-sys/pkgo) [![godocs.io](http://godocs.io/github.com/starshine-sys/pkgo?status.svg)](http://godocs.io/github.com/starshine-sys/pkgo)
+[![Go Reference](https://pkg.go.dev/badge/github.com/starshine-sys/pkgo.svg)](https://pkg.go.dev/github.com/starshine-sys/pkgo/v2) [![godocs.io](http://godocs.io/github.com/starshine-sys/pkgo?status.svg)](http://godocs.io/github.com/starshine-sys/pkgo/v2)
 
 `pkgo` is a simple wrapper around [PluralKit](https://pluralkit.me/)'s REST API.
 
@@ -9,10 +9,11 @@
 Import the package into your project:
 
 ```go
-import "github.com/starshine-sys/pkgo"
+import "github.com/starshine-sys/pkgo/v2"
 ```
 
-All API actions are done through a `Session` struct. This can be authenticated or unauthenticated; for unauthenticated sessions, only public information will be returned.
+All API actions are done through a `Session` struct. This can be authenticated or unauthenticated; for unauthenticated sessions, only public information will be returned.  
+To get an API token, run `pk;token` on Discord.
 
 ```go
 pk := pkgo.New("authentication token")
@@ -20,7 +21,12 @@ pk := pkgo.New("authentication token")
 pk := pkgo.New("")
 ```
 
-### Example
+### Note on branches/versions
+
+The `main` branch contains pkgo v1, which supports version 1 of PluralKit's API. Like the API version it supports, it's deprecated and won't receive any further updates.  
+The `v2` branch contains pkgo v2, which supports version 2 of PluralKit's API (with groups).
+
+## Example
 
 ```go
 sysID := "exmpl"
@@ -47,8 +53,8 @@ msg, err := s.Message(859157735644069928)
 pk = pkgo.New("notARealToken")
 
 sys, err = pk.EditSystem(pkgo.EditSystemData{
-    Name:        "Testing System",
-    Description: "Hi, we're a system! 👋",
-    Tag:         "| Testers",
+    Name:        pkgo.NewNullableString("Testing System"),
+    Description: pkgo.NewNullableString("Hi, we're a system! 👋"),
+    Tag:         pkgo.NewNullableString("| Testers"),
 })
 ```
