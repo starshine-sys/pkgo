@@ -29,7 +29,7 @@ type Member struct {
 	Privacy *MemberPrivacy `json:"privacy,omitempty"`
 }
 
-// MemberPrivacy ...
+// MemberPrivacy is a member privacy object.
 type MemberPrivacy struct {
 	Visibility         Privacy `json:"visibility,omitempty"`
 	NamePrivacy        Privacy `json:"name_privacy,omitempty"`

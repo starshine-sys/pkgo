@@ -24,7 +24,7 @@ type System struct {
 	Privacy *SystemPrivacy `json:"privacy,omitempty"`
 }
 
-// SystemPrivacy ...
+// SystemPrivacy is a system privacy object.
 type SystemPrivacy struct {
 	DescriptionPrivacy  Privacy `json:"description_privacy,omitempty"`
 	MemberListPrivacy   Privacy `json:"member_list_privacy,omitempty"`
