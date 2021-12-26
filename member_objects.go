@@ -11,7 +11,7 @@ import (
 // Color holds the color for a member
 type Color string
 
-var colorRe = regexp.MustCompile("(i)^[\\dabcdef]{6}$")
+var colorRe = regexp.MustCompile(`(i)^[\dabcdef]{6}$`)
 
 // IsValid returns true if the color is valid for PK
 func (c Color) IsValid() bool {
