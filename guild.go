@@ -9,11 +9,9 @@ type SystemGuild struct {
 	TagEnabled      bool          `json:"tag_enabled"`
 }
 
-// AutoproxyMode ...
 type AutoproxyMode string
 
-// Autoproxy mode constants
-// actually i lied they're variables (blame pointers)
+// Autoproxy modes
 var (
 	AutoproxyModeOff    AutoproxyMode = "off"
 	AutoproxyModeFront  AutoproxyMode = "front"

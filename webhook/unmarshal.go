@@ -51,5 +51,12 @@ func Decode(r io.Reader, tkn TokenGetter) (ev WebhookEvent, err error) {
 	}
 
 	err = json.Unmarshal(ev.Raw, ev.Data)
+	if err != nil {
+		return ev, err
+	}
+	if ev.Data == nil {
+		ev.Data = &UnknownEventData{}
+	}
+
 	return ev, err
 }
