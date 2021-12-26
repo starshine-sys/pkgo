@@ -15,3 +15,11 @@ type NullableBool = *bool
 func NewNullableBool(b bool) NullableBool {
 	return &b
 }
+
+// NullableBool is a nullable int for use in post/patch endpoints
+type NullableInt = *int
+
+// NewNullableInt creates a new nullable int with the given value
+func NewNullableInt(i int) NullableInt {
+	return &i
+}

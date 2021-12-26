@@ -14,9 +14,7 @@ type Session struct {
 	BaseURL string
 
 	Client *http.Client
-
 	token  string
-	system *System
 
 	rate *rate.Limiter
 

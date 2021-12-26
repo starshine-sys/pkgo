@@ -18,8 +18,7 @@ type System struct {
 	Banner      string `json:"banner,omitempty"`
 	Color       string `json:"color,omitempty"`
 
-	Created  time.Time `json:"created"`
-	Timezone string    `json:"timezone,omitempty"`
+	Created time.Time `json:"created"`
 
 	Privacy *SystemPrivacy `json:"privacy,omitempty"`
 }
@@ -34,23 +33,12 @@ type SystemPrivacy struct {
 }
 
 // Me gets the current token's system.
-// If force is set to true, this will always fetch the system from the API.
-func (s *Session) Me(force bool) (sys System, err error) {
+func (s *Session) Me() (sys System, err error) {
 	if s.token == "" {
 		return sys, ErrNoToken
 	}
 
-	if !force && s.system != nil {
-		return *s.system, nil
-	}
-
-	sys, err = s.System("@me")
-	if err != nil {
-		return
-	}
-
-	s.system = &sys
-	return
+	return s.System("@me")
 }
 
 // System gets a system by its 5-character system ID.
@@ -87,4 +75,38 @@ type EditSystemData struct {
 func (s *Session) EditSystem(psd EditSystemData) (sys System, err error) {
 	err = s.RequestJSON("PATCH", "/systems/@me", &sys, WithJSONBody(psd))
 	return sys, err
+}
+
+type SystemSettings struct {
+	Timezone     string `json:"timezone"`
+	PingsEnabled bool   `json:"pings_enabled"`
+	LatchTimeout int    `json:"latch_timeout"`
+
+	MemberDefaultPrivate bool `json:"member_default_private"`
+	GroupDefaultPrivate  bool `json:"group_default_private"`
+	ShowPrivateInfo      bool `json:"show_private_info"`
+
+	MemberLimit int `json:"member_limit"`
+	GroupLimit  int `json:"group_limit"`
+}
+
+// SystemSettings returns the current token's system's settings.
+func (s *Session) SystemSettings() (settings SystemSettings, err error) {
+	err = s.RequestJSON("GET", "/systems/@me/settings", &settings)
+	return settings, err
+}
+
+type UpdateSystemSettingsData struct {
+	Timezone     NullableString `json:"timezone"`
+	PingsEnabled NullableBool   `json:"pings_enabled"`
+	LatchTimeout NullableInt    `json:"latch_timeout"`
+
+	MemberDefaultPrivate NullableBool `json:"member_default_private"`
+	GroupDefaultPrivate  NullableBool `json:"group_default_private"`
+	ShowPrivateInfo      NullableBool `json:"show_private_info"`
+}
+
+func (s *Session) UpdateSystemSettings(data UpdateSystemSettingsData) (settings SystemSettings, err error) {
+	err = s.RequestJSON("PATCH", "/systems/@me/settings", &settings, WithJSONBody(data))
+	return settings, err
 }
