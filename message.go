@@ -4,7 +4,8 @@ import (
 	"time"
 )
 
-// Message is a proxied message
+// Message is a proxied message.
+// System and Member may be null if the system/member the message is connected to is deleted.
 type Message struct {
 	Timestamp time.Time `json:"timestamp"`
 
@@ -13,9 +14,8 @@ type Message struct {
 	Sender   Snowflake `json:"sender"`
 	Channel  Snowflake `json:"channel"`
 
-	System System `json:"system"`
-
-	Member Member `json:"member"`
+	System *System `json:"system"`
+	Member *Member `json:"member"`
 }
 
 // Message gets a message by Discord snowflake.
