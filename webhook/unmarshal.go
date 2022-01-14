@@ -44,18 +44,18 @@ func Decode(r io.Reader, tkn TokenGetter) (ev WebhookEvent, err error) {
 		}
 	}
 
-	if fn, ok := EventCreators[ev.Type]; ok {
-		ev.Data = fn()
-	} else {
-		ev.Data = new(UnknownEventData)
+	fn, ok := EventCreators[ev.Type]
+	if !ok {
+		fn = func() Event { return new(UnknownEventData) }
 	}
+	ev.Data = fn()
 
 	err = json.Unmarshal(ev.Raw, ev.Data)
 	if err != nil {
 		return ev, err
 	}
 	if ev.Data == nil {
-		ev.Data = &UnknownEventData{}
+		ev.Data = fn()
 	}
 
 	return ev, err
