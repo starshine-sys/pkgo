@@ -23,7 +23,10 @@ func (e apiError) Error() string {
 
 // Request makes a request returning a JSON body.
 func (s *Session) Request(method, endpoint string, opts ...RequestOption) (response []byte, err error) {
-	req, err := http.NewRequest(method, s.BaseURL+endpoint, nil)
+	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, method, s.BaseURL+endpoint, nil)
 	if err != nil {
 		return
 	}
@@ -32,9 +35,6 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 	if err != nil {
 		return nil, err
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout)
-	defer cancel()
 
 	err = s.rate.Wait(ctx)
 	if err != nil {
