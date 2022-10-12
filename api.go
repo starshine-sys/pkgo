@@ -15,10 +15,12 @@ var (
 	Version = "2"
 )
 
-type apiError int
+// HTTPError is an error code returned by the API.
+// This is only returned if the API did not return a valid error object.
+type HTTPError int
 
-func (e apiError) Error() string {
-	return fmt.Sprintf("%v %v", int(e), http.StatusText(int(e)))
+func (h HTTPError) Error() string {
+	return fmt.Sprintf("%v %v", int(h), http.StatusText(int(h)))
 }
 
 // Request makes a request returning a JSON body.
@@ -56,7 +58,7 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 		var e PKAPIError
 		err = json.Unmarshal(response, &e)
 		if err != nil {
-			return nil, apiError(resp.StatusCode)
+			return nil, HTTPError(resp.StatusCode)
 		}
 		e.StatusCode = resp.StatusCode
 		return nil, &e
