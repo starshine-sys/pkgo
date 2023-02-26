@@ -42,7 +42,7 @@ func NewWithLimiter(token string, limiter *rate.Limiter) *Session {
 		token:     token,
 		rate:      limiter,
 		Timeout:   10 * time.Second,
-		UserAgent: "pkgo (https://github.com/starshine-sys/pkgo, v2)",
+		UserAgent: "pkgo/v2 (+https://github.com/starshine-sys/pkgo)",
 	}
 
 	fn := func(req *http.Request) error {
