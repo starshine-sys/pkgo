@@ -23,6 +23,10 @@ type Session struct {
 
 	// RequestOptions are applied to every outgoing request.
 	RequestOptions []RequestOption
+
+	// UserAgent is the user agent sent with every request.
+	// PluralKit recommends setting a custom user agent.
+	UserAgent string
 }
 
 // New returns a session with the given token, or no token if the string is empty.
@@ -33,11 +37,12 @@ func New(token string) *Session {
 // NewWithLimiter returns a session with the given token and rate limiter.
 func NewWithLimiter(token string, limiter *rate.Limiter) *Session {
 	s := &Session{
-		BaseURL: BaseURL + Version,
-		Client:  &http.Client{},
-		token:   token,
-		rate:    limiter,
-		Timeout: 10 * time.Second,
+		BaseURL:   BaseURL + Version,
+		Client:    &http.Client{},
+		token:     token,
+		rate:      limiter,
+		Timeout:   10 * time.Second,
+		UserAgent: "pkgo (https://github.com/starshine-sys/pkgo, v2)",
 	}
 
 	fn := func(req *http.Request) error {

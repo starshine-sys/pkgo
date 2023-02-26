@@ -38,6 +38,9 @@ func (s *Session) Request(method, endpoint string, opts ...RequestOption) (respo
 		return nil, err
 	}
 
+	// set user agent
+	req.Header.Set("User-Agent", s.UserAgent)
+
 	err = s.rate.Wait(ctx)
 	if err != nil {
 		return
