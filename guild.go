@@ -2,22 +2,10 @@ package pkgo
 
 // SystemGuild is a system's guild-specific settings
 type SystemGuild struct {
-	ProxyingEnabled bool          `json:"proxying_enabled"`
-	AutoproxyMode   AutoproxyMode `json:"autoproxy_mode"`
-	AutoproxyMember string        `json:"autoproxy_member,omitempty"`
-	Tag             string        `json:"tag,omitempty"`
-	TagEnabled      bool          `json:"tag_enabled"`
+	ProxyingEnabled bool   `json:"proxying_enabled"`
+	Tag             string `json:"tag,omitempty"`
+	TagEnabled      bool   `json:"tag_enabled"`
 }
-
-type AutoproxyMode string
-
-// Autoproxy modes
-var (
-	AutoproxyModeOff    AutoproxyMode = "off"
-	AutoproxyModeFront  AutoproxyMode = "front"
-	AutoproxyModeLatch  AutoproxyMode = "latch"
-	AutoproxyModeMember AutoproxyMode = "member"
-)
 
 // SystemGuild returns the current system's guild settings.
 func (s *Session) SystemGuild(guildID Snowflake) (sg SystemGuild, err error) {
@@ -28,8 +16,6 @@ func (s *Session) SystemGuild(guildID Snowflake) (sg SystemGuild, err error) {
 // EditSystemGuildData ...
 type EditSystemGuildData struct {
 	ProxyingEnabled NullableBool   `json:"proxying_enabled"`
-	AutoproxyMode   *AutoproxyMode `json:"autoproxy_mode"`
-	AutoproxyMember NullableString `json:"autoproxy_member,omitempty"`
 	Tag             NullableString `json:"tag,omitempty"`
 	TagEnabled      NullableBool   `json:"tag_enabled"`
 }
