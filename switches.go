@@ -32,7 +32,7 @@ func (s *Session) Fronters(id string) (f Front, err error) {
 
 // Switches gets the latest 100 switches for a system.
 // For earlier switches, see SwitchesBefore.
-// If the system's font history is set to private, requires authentication.
+// If the system's front history is set to private, requires authentication.
 func (s *Session) Switches(id string) (switches []Switch, err error) {
 	switches = []Switch{}
 	err = s.RequestJSON("GET", "/systems/"+id+"/switches", &switches)
@@ -42,7 +42,7 @@ func (s *Session) Switches(id string) (switches []Switch, err error) {
 // SwitchesBefore gets `limit` switches before the given timestamp.
 // A zero limit will return *all* switches.
 // For the latest switches, see Switches.
-// If the system's font history is set to private, requires authentication.
+// If the system's front history is set to private, requires authentication.
 func (s *Session) SwitchesBefore(id string, before time.Time, limit uint64) (switches []Switch, err error) {
 	if limit > 0 && limit <= 100 {
 		return s.switchesBefore(id, before, limit)
