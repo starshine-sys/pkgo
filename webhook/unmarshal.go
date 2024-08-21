@@ -15,14 +15,14 @@ type TokenGetter func(systemID uuid.UUID) (string, error)
 
 const ErrInvalidToken = errors.Sentinel("payload token doesn't match")
 
-// Unmarshal unmarshals the given byte slice to a WebhookEvent,
+// Unmarshal decodes the given byte slice to a WebhookEvent,
 // and also validates the token if tkn is not nil.
 // If the token returned by tkn is empty, the event is *not* validated.
 func Unmarshal(src []byte, tkn TokenGetter) (ev WebhookEvent, err error) {
 	return Decode(bytes.NewReader(src), tkn)
 }
 
-// Unmarshal unmarshals the given io.Reader to a WebhookEvent,
+// Decode decodes the given io.Reader to a WebhookEvent,
 // and also validates the token if tkn is not nil.
 // If the token returned by tkn is empty, the event is *not* validated.
 func Decode(r io.Reader, tkn TokenGetter) (ev WebhookEvent, err error) {
@@ -49,6 +49,10 @@ func Decode(r io.Reader, tkn TokenGetter) (ev WebhookEvent, err error) {
 		fn = func() Event { return new(UnknownEventData) }
 	}
 	ev.Data = fn()
+
+	if EmptyEvents[ev.Type] {
+		return ev, err
+	}
 
 	err = json.Unmarshal(ev.Raw, ev.Data)
 	if err != nil {

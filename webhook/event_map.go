@@ -22,3 +22,15 @@ var EventCreators = map[DispatchEventType]func() Event{
 	DeleteAllSwitchesEventType: func() Event { return new(DeleteAllSwitchesEventData) },
 	SuccessfulImportEventType:  func() Event { return new(SuccessfulImportEventData) },
 }
+
+// EmptyEvents are events without a body.
+var EmptyEvents = map[DispatchEventType]bool{
+	PingEventType:              true,
+	DeleteMemberEventType:      true,
+	DeleteGroupEventType:       true,
+	LinkAccountEventType:       true,
+	UnlinkAccountEventType:     true,
+	DeleteSwitchEventType:      true,
+	DeleteAllSwitchesEventType: true,
+	SuccessfulImportEventType:  true,
+}
